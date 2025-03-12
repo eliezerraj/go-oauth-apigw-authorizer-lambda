@@ -12,8 +12,8 @@ import(
 	"github.com/go-oauth-apigw-authorizer-lambda/internal/core/service"
 	"github.com/go-oauth-apigw-authorizer-lambda/internal/adapter/lambdaHandler"
 
-	"github.com/aws/aws-lambda-go/events"
-	//"github.com/aws/aws-lambda-go/lambda"
+	//"github.com/aws/aws-lambda-go/events" // use it for a mock local
+	"github.com/aws/aws-lambda-go/lambda"
 
 	go_core_observ "github.com/eliezerraj/go-core/observability"
 	go_core_bucket_s3 "github.com/eliezerraj/go-core/aws/bucket_s3"
@@ -25,6 +25,8 @@ import(
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 )
 
 var(
@@ -189,7 +191,7 @@ func main (){
 
 	handler := lambdaHandler.InitializeLambdaHandler(workerService, appServer.InfoPod.ModelSign)
 
-	mockEvent := events.APIGatewayCustomAuthorizerRequestTypeRequest{
+	/*mockEvent := events.APIGatewayCustomAuthorizerRequestTypeRequest{
 		Type:       "TOKEN",
 		MethodArn:  "arn:aws:execute-api:us-east-2:908671954593:k0ng1bdik7/qa/GET/account/info",
 		Headers: map[string]string{
@@ -204,5 +206,7 @@ func main (){
 		},
 	}
 
-	handler.LambdaHandlerRequest(ctx, mockEvent)
+	handler.LambdaHandlerRequest(ctx, mockEvent)*/
+
+	lambda.Start(otellambda.InstrumentHandler(handler.LambdaHandlerRequest, xrayconfig.WithRecommendedOptions(tp)... ))
 }
