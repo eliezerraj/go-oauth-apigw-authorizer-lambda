@@ -57,7 +57,7 @@ func init(){
 	awsService.FilePathRSA="/"
 	awsService.FileNameRSAPrivKey="server-private.key"
 	awsService.FileNameRSAPubKey="server-public.key"
-	awsService.CrlFileKey="crl-ca.crl"
+	awsService.FileNameCrlKey="crl-ca.crl"
 	awsService.AwsRegion="us-east-2"
 	awsService.SecretName="key-jwt-auth"
 }
@@ -116,7 +116,7 @@ func loadKey(	ctx context.Context,
 	crl_pem, err := coreBucketS3.GetObject(ctx, 
 												awsService.BucketNameRSAKey,
 												awsService.FilePathRSA,
-												awsService.CrlFileKey )
+												awsService.FileNameCrlKey )
 	if err != nil{
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func main (){
 		panic("error create a workerservice " + err.Error())
 	}
 
-	handler := lambdaHandler.InitializeLambdaHandler(workerService, appServer.InfoPod.Model)
+	handler := lambdaHandler.InitializeLambdaHandler(workerService, appServer.InfoPod.ModelSign)
 
 	mockEvent := events.APIGatewayCustomAuthorizerRequestTypeRequest{
 		Type:       "TOKEN",

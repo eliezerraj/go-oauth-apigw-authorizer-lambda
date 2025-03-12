@@ -24,7 +24,7 @@ type InfoPod struct {
 	IsAZ				bool	`json:"is_az"`
 	Env					string `json:"enviroment,omitempty"`
 	AccountID			string `json:"account_id,omitempty"`
-	Model				string `json:"model,RSA,omitempty"`
+	ModelSign			string `json:"model_sign,RSA,omitempty"`
 }
 
 type Authentication struct {
@@ -74,7 +74,7 @@ type AwsService struct {
 	FilePathRSA			string `json:"path_rsa_key,omitempty"`
 	FileNameRSAPrivKey	string `json:"file_name_rsa_private_key,omitempty"`
 	FileNameRSAPubKey	string `json:"file_name_rsa_public_key,omitempty"`
-	CrlFileKey			string `json:"crl_file_key"`
+	FileNameCrlKey		string `json:"file_name_crl_key"`
 }
 
 type RsaKey struct{

@@ -1,0 +1,42 @@
+version: 0.2
+
+env:
+  variables:
+    PACKAGE: "github.com/go-oauth-apigw-authorizer-lambda"
+
+phases:
+  install:
+    runtime-versions:
+      golang: 1.21.3
+    commands:
+        # AWS Codebuild Go images use /go for the $GOPATH so copy the src code into that dir structure
+      - echo INSTALL installing Go dependencies...
+      - mkdir -p "/go/src/$(dirname ${PACKAGE})"
+      - ln -s "${CODEBUILD_SRC_DIR}" "/go/src/${PACKAGE}"
+
+      # Print all environment variables (handy for AWS CodeBuild logs)
+      - echo Print all enviroment variables ...
+      - env
+
+  pre_build:
+    commands:
+      - echo PRE_BUILD installing source dependencies on `date`
+      - echo Make sure we are in the project directory within our GOPATH 
+      - cd "/go/src/${PACKAGE}"
+      - echo Fetch all dependencies
+      - go get -t ./...
+
+  build:
+    commands:
+      - echo Build our go application on `date`
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./bootstrap ./cmd/main.go
+
+  post_build:
+      commands:
+      - echo POST_BUILD Zipping go application on `date`
+      - zip -r -q ./main.zip ./bootstrap
+
+artifacts:
+  files:
+    - main.zip
+    - "**/*"

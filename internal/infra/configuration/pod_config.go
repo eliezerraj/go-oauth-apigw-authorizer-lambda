@@ -28,6 +28,8 @@ func GetInfoPod() (	model.InfoPod) {
 	if os.Getenv("ENV") !=  "" {	
 		infoPod.Env = os.Getenv("ENV")
 	}
-	
+	if os.Getenv("MODEL_SIGN") !=  "" {	
+		infoPod.Env = os.Getenv("MODEL_SIGN")
+	}
 	return infoPod
 }
