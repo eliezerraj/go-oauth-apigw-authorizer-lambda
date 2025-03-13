@@ -1,6 +1,6 @@
 # go-oauth-apigw-authorizer-lambda
 
-go-oauth-apigw-authorizer-lambda
+For POC purposes
 
 ## Lambda Env Variables
 
