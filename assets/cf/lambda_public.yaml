@@ -117,18 +117,19 @@ Resources:
       Runtime: !Ref Runtime
       Environment:
         Variables:
-          APP_NAME: !Ref FunctionLambdaName
+          POD_NAME: !Ref FunctionLambdaName
           OTEL_EXPORTER_OTLP_ENDPOINT: 'localhost:4317'
           REGION: 'us-east-2'
           RSA_BUCKET_NAME_KEY: 'eliezerraj-908671954593-mtls-truststore'
           RSA_FILE_PATH: /
-          RSA_PRIV_FILE_KEY: private_key.pem
-          RSA_PUB_FILE_KEY: public_key.pe
-          CRL_FILE_KEY: public_key.pe
+          RSA_PRIV_FILE_KEY: server-private.key
+          RSA_PUB_FILE_KEY: server-public.key
+          CRL_FILE_KEY: crl-ca.crl
           SECRET_NAME: 'key-jwt-auth'
           DYNAMO_TABLE_NAME: 'user_login_2'
-          VERSION: '3.0'
+          API_VERSION: '3.0'
           MODEL_SIGN: "RSA"
+          END: !Ref Env
       Role: 
         Fn::GetAtt: 
           - "LambdaExecutionRole"

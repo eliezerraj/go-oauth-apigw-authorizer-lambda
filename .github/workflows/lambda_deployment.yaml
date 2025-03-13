@@ -21,10 +21,14 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
+      - name: Upload collector.yml to S3
+        run: |
+          aws s3 cp collector.yml s3://codepipeline-us-east-2-237656914886/go-oauth-apigw-authorizer-lambda/collector.yml
+
       - name: Build Go Binary
         run: |
-          GOOS=linux GOARCH=amd64 go build -o main ./cmd/main.go
-          zip bootstrap.zip main
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap ./cmd/main.go
+          zip main.zip bootstrap
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -38,4 +42,4 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name go-oauth-apigw-authorizer-lambda \
-            --zip-file fileb://main.zip
+            --zip-file fileb://bootstrap.zip

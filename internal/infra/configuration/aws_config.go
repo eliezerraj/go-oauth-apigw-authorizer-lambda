@@ -11,8 +11,8 @@ func GetAwsServiceEnv() model.AwsService {
 
 	var awsService	model.AwsService
 
-	if os.Getenv("AWS_REGION") !=  "" {
-		awsService.AwsRegion = os.Getenv("AWS_REGION")
+	if os.Getenv("REGION") !=  "" {
+		awsService.AwsRegion = os.Getenv("REGION")
 	}
 	if os.Getenv("SECRET_NAME") !=  "" {
 		awsService.SecretName = os.Getenv("SECRET_NAME")
