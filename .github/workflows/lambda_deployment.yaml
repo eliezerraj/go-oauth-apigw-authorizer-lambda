@@ -21,10 +21,6 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
-      - name: Upload collector.yml to S3
-        run: |
-          aws s3 cp collector.yml s3://codepipeline-us-east-2-237656914886/go-oauth-apigw-authorizer-lambda/collector.yml
-
       - name: Build Go Binary
         run: |
           GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap ./cmd/main.go
@@ -37,6 +33,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-2  # Change to your AWS region
+
+      - name: Upload collector.yml to S3
+        run: |
+          aws s3 cp collector.yml s3://codepipeline-us-east-2-237656914886/go-oauth-apigw-authorizer-lambda/collector.yml
 
       - name: Deploy to AWS Lambda
         run: |
