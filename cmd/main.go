@@ -54,14 +54,6 @@ func init(){
 	appServer.InfoPod = &infoPod
 	appServer.ConfigOTEL = &configOTEL
 	appServer.AwsService = &awsService
-
-	awsService.BucketNameRSAKey ="eliezerraj-908671954593-mtls-truststore"
-	awsService.FilePathRSA="/"
-	awsService.FileNameRSAPrivKey="server-private.key"
-	awsService.FileNameRSAPubKey="server-public.key"
-	awsService.FileNameCrlKey="crl-ca.crl"
-	awsService.AwsRegion="us-east-2"
-	awsService.SecretName="key-jwt-auth"
 }
 
 // About loads all key (HS256 and RSA)
@@ -143,7 +135,6 @@ func main (){
 	infoTrace.PodVersion = appServer.InfoPod.ApiVersion
 	infoTrace.ServiceType = "k8-workload"
 	infoTrace.Env = appServer.InfoPod.Env
-	infoTrace.AccountID = appServer.InfoPod.AccountID
 
 	tp := tracerProvider.NewTracerProvider(	ctx, 
 											appServer.ConfigOTEL, 

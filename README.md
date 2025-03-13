@@ -1,6 +1,6 @@
 # go-oauth-apigw-authorizer-lambda
 
-go-oauth-apigw-authorizer-lambda
+For POC purposes
 
 ## Lambda Env Variables
 
@@ -22,13 +22,13 @@ go-oauth-apigw-authorizer-lambda
 ## Manually compile the function
 
       New Version
-      GOARCH=amd64 GOOS=linux go build -o ../build/bootstrap main.go
-      zip -jrm ../build/main.zip ../build/bootstrap
+      GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap ./cmd/main.go
+      zip main.zip bootstrap
 
-        aws lambda update-function-code \
+    aws lambda update-function-code \
         --region us-east-2 \
-        --function-name lambda-go-auth-apigw \
-        --zip-file fileb:///mnt/c/Eliezer/workspace/github.com/lambda-go-auth-apigw/build/main.zip \
+        --function-name go-oauth-apigw-authorizer-lambda \
+        --zip-file fileb:///mnt/c/Eliezer/workspace/github.com/go-oauth-apigw-authorizer-lambda/main.zip \
         --publish
 
 + Test APIGW

@@ -17,13 +17,8 @@ type AppServer struct {
 
 type InfoPod struct {
 	PodName				string `json:"pod_name"`
-	ApiVersion			string `json:"version"`
-	OSPID				string `json:"os_pid"`
-	IPAddress			string `json:"ip_address"`
-	AvailabilityZone 	string `json:"availabilityZone"`
-	IsAZ				bool	`json:"is_az"`
+	ApiVersion			string `json:"api_version"`
 	Env					string `json:"enviroment,omitempty"`
-	AccountID			string `json:"account_id,omitempty"`
 	ModelSign			string `json:"model_sign,RSA,omitempty"`
 }
 
