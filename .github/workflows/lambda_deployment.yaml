@@ -1,45 +1,192 @@
-name: Deploy Go Lambda Function
+name: Deploy lambda
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      AWS_ACCOUNT_ID:
+        description: 'AWS account id'
+        required: true
+        default: '992382474575'
+      REGION:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-2'
 
+env:
+  GO_VERSION: 1.23.3
+
+defaults:
+  run:
+    shell: bash
+    
 jobs:
-  deploy:
-    name: Deploy Lambda
+  setup-environment:
+    uses: ./.github/workflows/setup-environment.yaml
+    with:
+      AWS_ACCOUNT_ID: ${{ github.event.inputs.AWS_ACCOUNT_ID }}
+      REGION: ${{ github.event.inputs.REGION }}
+
+  linter:
     runs-on: ubuntu-latest
+    needs: [ setup-environment ]
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set Up Go
-        uses: actions/setup-go@v5
+      - name: Setup go environment
+        uses: actions/setup-go@v5.0.2
         with:
-          go-version: 1.23.3 # Adjust as needed
+          go-version: ${{ env.GO_VERSION }}
 
-      - name: Install Dependencies
-        run: go mod tidy
+  build:
+    runs-on: ubuntu-latest
+    needs: [ setup-environment ]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Build Go Binary
-        run: |
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap ./cmd/main.go
-          zip main.zip bootstrap
+    - name: Setup go env
+      uses: actions/setup-go@v5.0.2
+      with:
+        go-version: ${{ env.GO_VERSION }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+    - name: Install dependencies
+      run: go mod tidy
+
+    - name: Build go image
+      env:
+        MAIN_GO_FILE: ${{ needs.setup-environment.outputs.MAIN_GO_FILE }}
+      run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -v -o bootstrap $MAIN_GO_FILE
+
+    - name: Zip image
+      run: zip main.zip bootstrap
+
+    - name: Save image tmp folder
+      uses: actions/upload-artifact@v4
+      with:
+        name: lambda-artifact
+        path: |
+            collector.yaml
+            main.zip
+        retention-days: 1
+
+    - name: Debug - List Files and Paths
+      run: |
+        echo "Current Directory:"
+        pwd
+        echo "Files in the current directory:"
+        ls -lah
+
+  move-to-s3:
+    runs-on: ubuntu-latest
+    needs: [ setup-environment, build, linter ]
+
+    steps:
+    - name: Retrieve image from tmp folder
+      uses: actions/download-artifact@v4
+      with:
+        name: lambda-artifact
+        path: build
+
+    - name: Debug - List Files and Paths
+      run: |
+        echo "Current Directory:"
+        pwd
+        echo "Files in the current directory:"
+        ls -lah
+        echo "Recursive file list:"
+        ls -R build
+
+    - name: Configure AWS Credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        AWS_REGION: ${{ needs.setup-environment.outputs.AWS_REGION }}
+        BUCKET_S3_LAMBDA_DEPLOY: ${{ needs.setup-environment.outputs.BUCKET_S3_LAMBDA_DEPLOY }}
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ${{ needs.setup-environment.outputs.AWS_REGION }}
+
+    - name: Upload collector.yaml to S3
+      run: aws s3 cp ./build/collector.yaml ${{ needs.setup-environment.outputs.BUCKET_S3_LAMBDA_DEPLOY }}/collector.yaml
+
+    - name: Upload image to S3
+      run: aws s3 cp ./build/main.zip ${{ needs.setup-environment.outputs.BUCKET_S3_LAMBDA_DEPLOY }}/main.zip
+
+  infra-as-code:
+    runs-on: ubuntu-latest
+    needs: [ setup-environment, build, linter, move-to-s3 ]
+    permissions:
+      id-token: write
+      contents: read
+      
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-2  # Change to your AWS region
+          aws-region: ${{ needs.setup-environment.outputs.AWS_REGION }}
 
-      - name: Upload collector.yml to S3
+      - name: Execute Cloudformation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        env:
+          REPO_NAME: ${{ needs.setup-environment.outputs.REPO_NAME }}
+          ENVIRONMENT: ${{ needs.setup-environment.outputs.ENVIRONMENT }}
+          TEMPLATE_PATH: ${{ needs.setup-environment.outputs.CLOUDFORMATION_TEMPLATE_PATH }}
+          TEMPLATE_PARAMETERS_PATH: ${{ needs.setup-environment.outputs.CLOUDFORMATION_TEMPLATE_PARAMETERS_PATH }}
+        with:
+          name: ${{ env.REPO_NAME }}-iaac-stack
+          template: ${{ env.TEMPLATE_PATH }}
+          parameter-overrides: ${{ env.TEMPLATE_PARAMETERS_PATH }}
+          no-fail-on-empty-changeset: "1"
+          capabilities: CAPABILITY_AUTO_EXPAND,CAPABILITY_NAMED_IAM
+          
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: [ setup-environment, infra-as-code ]
+    permissions:
+      id-token: write
+      contents: read
+    if: github.ref == 'refs/heads/main' 
+    steps:
+      - name: Retrieve image from tmp folder
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-artifact
+          path: build
+
+      - name: Debug - List Files and Paths
         run: |
-          aws s3 cp collector.yml s3://codepipeline-us-east-2-237656914886/go-oauth-apigw-authorizer-lambda/collector.yml
+          echo "Current Directory:"
+          pwd
+          echo "Files in the current directory:"
+          ls -lah
+          echo "Recursive file list:"
+          ls -R build
+                         
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ needs.setup-environment.outputs.AWS_REGION }}
 
       - name: Deploy to AWS Lambda
-        run: |
-          aws lambda update-function-code \
-            --function-name go-oauth-apigw-authorizer-lambda \
-            --zip-file fileb://main.zip
+        env:
+          REPO_NAME: ${{ needs.setup-environment.outputs.REPO_NAME }}
+        run: aws lambda update-function-code --function-name $REPO_NAME --zip-file fileb://./build/main.zip
