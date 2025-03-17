@@ -1,10 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Lambda Public template
+Description: Lambda Public template  v3.0 17/03/2025
 
 Parameters:
   Versao:
     Type: String
     Default: 0
+  ApiVersion:
+    Type: String
+    Default: 1.0
   Env:
     Type: String
     Default: dev
@@ -57,6 +60,11 @@ Parameters:
     Description: Inform policy ARN (opcional)
     Type: String 
     Default: "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+  ManagedPolicyParameterFour:
+    Description: Inform policy ARN (opcional)
+    Type: String 
+    Default: "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+
   CrlBucketNameKey:
     Description: Crl Bucket Name
     Type: String 
@@ -66,11 +74,20 @@ Parameters:
     Type: String
     ConstraintDescription: must be a valid environment provided.al2)
     Default: provided.al2
+  Layer01Arn:
+    Description: Inform the arn layer 01 
+    Type: String
+    Default: arn:aws:lambda:us-east-2:901920570463:layer:aws-otel-collector-amd64-ver-0-115-0:2 #https://github.com/open-telemetry/opentelemetry-lambda/releases
+  Layer02Arn:
+    Description: Inform the arn layer 02
+    Type: String
+    Default: arn:aws:lambda:us-east-2:580247275435:layer:LambdaInsightsExtension:55 # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versionsx86-64.html
 
 Conditions:
   IsManagedPolicyParameterOne:    !Not [!Equals [ !Ref ManagedPolicyParameterOne, "" ]]
   IsManagedPolicyParameterTwo:    !Not [!Equals [ !Ref ManagedPolicyParameterTwo, "" ]]
   IsManagedPolicyParameterThree:  !Not [!Equals [ !Ref ManagedPolicyParameterThree, "" ]]
+  IsManagedPolicyParameterFour:   !Not [!Equals [ !Ref ManagedPolicyParameterFour, "" ]]
 
 Resources:
   LambdaExecutionRole:
@@ -90,6 +107,7 @@ Resources:
         - !If [ IsManagedPolicyParameterOne, !Ref ManagedPolicyParameterOne, !Ref 'AWS::NoValue' ]
         - !If [ IsManagedPolicyParameterTwo, !Ref ManagedPolicyParameterTwo, !Ref 'AWS::NoValue' ]
         - !If [ IsManagedPolicyParameterThree, !Ref ManagedPolicyParameterThree, !Ref 'AWS::NoValue' ]
+        - !If [ IsManagedPolicyParameterFour, !Ref ManagedPolicyParameterFour, !Ref 'AWS::NoValue' ]      
       Policies:
       - PolicyName: lambda_policy
         PolicyDocument:
@@ -106,6 +124,8 @@ Resources:
             - "logs:PutLogEvents"
             - "logs:PutLogEvents"
             - "ssm:GetParameter"
+            - "xray:PutTraceSegments"
+            - "xray:PutTelemetryRecords"
             Resource: "*"
 
   LambdaFunction: 
@@ -115,6 +135,11 @@ Resources:
       Handler: !Ref HandlerName
       Timeout: !Ref Timeout
       Runtime: !Ref Runtime
+      TracingConfig:
+        Mode: Active   
+      Layers:
+        - !Ref Layer01Arn
+        - !Ref Layer02Arn 
       Environment:
         Variables:
           POD_NAME: !Ref FunctionLambdaName

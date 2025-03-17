@@ -1,0 +1,22 @@
+[
+    {
+      "ParameterKey": "ApiVersion",
+      "ParameterValue": "3.0"
+    },
+    {
+      "ParameterKey": "Env",
+      "ParameterValue": "dev"
+    },
+    {
+      "ParameterKey": "FunctionLambdaName",
+      "ParameterValue": "go-oauth-apigw-authorizer-lambda"
+    },
+    {
+      "ParameterKey": "S3KeyParam",
+      "ParameterValue": "go-oauth-apigw-authorizer-lambda/main.zip"
+    },
+    {
+      "ParameterKey": "S3BucketParam",
+      "ParameterValue": "codepipeline-us-east-2-237656914886"
+    }
+]
