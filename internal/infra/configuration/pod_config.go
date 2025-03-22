@@ -6,11 +6,11 @@ import(
 	"github.com/go-oauth-apigw-authorizer-lambda/internal/core/model"
 )
 
-var childLogger = log.With().Str("infra", "configuration").Logger()
+var childLogger = log.With().Str("component","go-oauth-apigw-authorizer-lambda").Str("package","internal.infra.configuration").Logger()
 
 // About get pod information env var
 func GetInfoPod() (	model.InfoPod) {
-	childLogger.Debug().Msg("GetInfoPod")
+	childLogger.Info().Str("func","GetInfoPod").Send()
 
 	var infoPod 	model.InfoPod
 

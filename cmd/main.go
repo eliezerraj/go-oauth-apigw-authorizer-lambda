@@ -27,10 +27,12 @@ import(
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 )
 
 var(
-	logLevel = 	zerolog.DebugLevel
+	logLevel = 	zerolog.InfoLevel // zerolog.InfoLevel zerolog.DebugLevel
+
 	appServer	model.AppServer
 	awsConfig 	go_core_aws_config.AwsConfig
 	databaseDynamo		go_core_aws_dynamo.DatabaseDynamo
@@ -40,11 +42,14 @@ var(
 	infoTrace go_core_observ.InfoTrace
 	tracer 			trace.Tracer
 	tracerProvider go_core_observ.TracerProvider
+
+	childLogger = log.With().Str("component","go-oauth-apigw-authorizer-lambda").Str("package", "main").Logger()
 )
 
 // About initialize the enviroment var
 func init(){
-	log.Debug().Msg("init")
+	childLogger.Info().Str("func","init").Send()
+
 	zerolog.SetGlobalLevel(logLevel)
 
 	infoPod := configuration.GetInfoPod()
@@ -61,7 +66,11 @@ func loadKey(	ctx context.Context,
 				awsService model.AwsService, 
 				coreSecretManager 	*go_core_aws_secret_manager.AwsSecretManager,
 				coreBucketS3 		*go_core_bucket_s3.AwsBucketS3) (*model.RsaKey, error){
-	log.Debug().Msg("loadKey")
+	childLogger.Info().Str("func","loadKey").Send()
+
+	//trace
+	span := tracerProvider.Span(ctx, "main.loadKey")
+	defer span.End()
 
 	// Load symetric key from secret manager
 	var certCore go_core_cert.CertCore
@@ -71,6 +80,7 @@ func loadKey(	ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
+
 	var secretData map[string]string
 	if err := json.Unmarshal([]byte(*secret), &secretData); err != nil {
 		return nil, err
@@ -108,9 +118,9 @@ func loadKey(	ctx context.Context,
 
 	// Load the crl
 	crl_pem, err := coreBucketS3.GetObject(ctx, 
-												awsService.BucketNameRSAKey,
-												awsService.FilePathRSA,
-												awsService.FileNameCrlKey )
+											awsService.BucketNameRSAKey,
+											awsService.FilePathRSA,
+											awsService.FileNameCrlKey )
 	if err != nil{
 		return nil, err
 	}
@@ -121,16 +131,11 @@ func loadKey(	ctx context.Context,
 
 // About main
 func main (){
-	log.Debug().Msg("main")
-	log.Debug().Msg("----------------------------------------------------")
-	log.Debug().Interface("appServer :",appServer).Msg("")
-	log.Debug().Msg("----------------------------------------------------")
+	childLogger.Info().Str("func","main").Interface("appServer :",appServer).Send()
 
 	ctx := context.Background()
 
 	// otel
-	log.Info().Str("OTEL_EXPORTER_OTLP_ENDPOINT :", appServer.ConfigOTEL.OtelExportEndpoint).Msg("")
-
 	infoTrace.PodName = appServer.InfoPod.PodName
 	infoTrace.PodVersion = appServer.InfoPod.ApiVersion
 	infoTrace.ServiceType = "k8-workload"
@@ -139,8 +144,9 @@ func main (){
 	tp := tracerProvider.NewTracerProvider(	ctx, 
 											appServer.ConfigOTEL, 
 											&infoTrace)
-	otel.SetTextMapPropagator(xray.Propagator{})
+	
 	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(xray.Propagator{})
 	tracer = tp.Tracer(appServer.InfoPod.PodName)
 
 	defer func(ctx context.Context) {
@@ -155,6 +161,8 @@ func main (){
 	if err != nil {
 		panic("error create new aws session " + err.Error())
 	}
+
+	otelaws.AppendMiddlewares(&awsConfig.APIOptions)
 
 	// Prepare AWS services
 	coreDynamoDB := databaseDynamo.NewDatabaseDynamo(awsConfig)
@@ -182,7 +190,8 @@ func main (){
 
 	handler := lambdaHandler.InitializeLambdaHandler(workerService, appServer.InfoPod.ModelSign)
 
-	/*mockEvent := events.APIGatewayCustomAuthorizerRequestTypeRequest{
+	/*
+	mockEvent := events.APIGatewayCustomAuthorizerRequestTypeRequest{
 		Type:       "TOKEN",
 		MethodArn:  "arn:aws:execute-api:us-east-2:908671954593:k0ng1bdik7/qa/GET/account/info",
 		Headers: map[string]string{
@@ -192,6 +201,9 @@ func main (){
 	mockEvent = events.APIGatewayCustomAuthorizerRequestTypeRequest{
 		Type:       "TOKEN",
 		MethodArn:  "arn:aws:execute-api:us-east-2:908671954593:k0ng1bdik7/qa/GET/account/info",
+		RequestContext: events.APIGatewayCustomAuthorizerRequestTypeRequestContext{
+			RequestID: "request-id-12345",
+		},
 		Headers: map[string]string{
 			"Authorization": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJpc3MiOiJnby1vYXV0aCIsInZlcnNpb24iOiIzIiwiand0X2lkIjoiYWVjMWNkMDgtOGQ2YS00OTMzLThiNTctZjZjZDI5NTA1ODJiIiwidXNlcm5hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFkbWluIl0sImV4cCI6MTc0MTc1OTk1M30.TY6TSKY1Xr-IdIaN6yEcQFTG6zHXBgxQj8XGcDBu4jLI0bK20cCzmvCEi40sVof52RTc5i5fXSeFqRC17Ua7jdVY-DW9iT17nacjHeJl4d1A3pVGM1bTVRttRe2_klSB7hgvKyesCUKbHbUqJW_7iZY_ld_0BW7Vr6v7sINcZfrg-lWWV2xqI8wIRUAZERA8MzIykVIDkJoM4Ee6YRICDVGXsKCMMxjOhSPIqxV20K6ew-4wgRoeB5SvQiCa2_Oi3TuC1mcm6lqHPHpqyjf6rpIctiE9kfAQXISnO7_5-fe4Ptyrx3KdN4Vyq5w5cSPBL7jHbzk27KKSO3FiyEVFfHKGBfUPCC24xxWDaMJcyw1t_WRyKal4FvWrlsIPsF9lhxrJzOCk1mwNkJ3XWHaWI-6gk_EIOvk0r1syFjeEWGlTTQpiyxl0EI0231shCDlGsDzzNjKDaBdEZ4IK3lGEclPGKk0Ss1TjK3ntRdfQtIq2HCYzq4hGslAf2hzQSYyS7vNwnM6uZojg6k6oaIlGszeRsbwfXaLCPdMBfif6h3K0aEPfv6EMYOae933P3NvcAPCCLREOzeblo7dv-mayQdmOzf7bZfuCDvH_e04TWEcDOGznGnlhOk_DvJCDaa0DNF9iG3EFoA7cye8IGtxHiFci-XejSavscZ2WrAZg7LE",
 		},

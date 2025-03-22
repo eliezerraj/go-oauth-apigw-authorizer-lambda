@@ -8,7 +8,7 @@ import(
 	go_core_aws_dynamo "github.com/eliezerraj/go-core/aws/dynamo"
 )
 
-var childLogger = log.With().Str("core", "service").Logger()
+var childLogger = log.With().Str("component","go-oauht-lambda").Str("package","internal.core.service").Logger()
 
 type WorkerService struct {
 	coreDynamoDB 		*go_core_aws_dynamo.DatabaseDynamo
@@ -24,7 +24,7 @@ func NewWorkerService(	coreDynamoDB 		*go_core_aws_dynamo.DatabaseDynamo,
 						keys				*model.RsaKey,
 						tokenSignedValidation 	func(string, interface{}) (*model.JwtData, error),
 						createdToken 			func(interface{}, time.Time, model.JwtData) (*model.Authentication, error) ) (*WorkerService, error) {
-	childLogger.Debug().Msg("NewWorkerService")
+	childLogger.Info().Str("func","NewWorkerService").Send()
 
 	return &WorkerService{	coreDynamoDB: coreDynamoDB,
 							awsService: awsService,
