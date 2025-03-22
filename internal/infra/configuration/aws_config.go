@@ -7,7 +7,7 @@ import(
 
 // About get AWS service env ver
 func GetAwsServiceEnv() model.AwsService {
-	childLogger.Debug().Msg("GetAwsServiceEnv")
+	childLogger.Info().Str("func","GetAwsServiceEnv").Send()
 
 	var awsService	model.AwsService
 

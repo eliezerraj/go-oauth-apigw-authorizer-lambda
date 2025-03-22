@@ -19,7 +19,7 @@ var tracerProvider go_core_observ.TracerProvider
 
 // About check token HS256 expired/signature and claims
 func TokenValidationHS256(bearerToken string, hs256Key interface{}) ( *model.JwtData, error){
-	childLogger.Debug().Msg("TokenValidationHS256")
+	childLogger.Info().Str("func","TokenValidationHS256").Send()
 
 	claims := &model.JwtData{}
 	tkn, err := jwt.ParseWithClaims(bearerToken, claims, func(token *jwt.Token) (interface{}, error) {
@@ -42,7 +42,7 @@ func TokenValidationHS256(bearerToken string, hs256Key interface{}) ( *model.Jwt
 
 // About check token RSA expired/signature and claims
 func TokenValidationRSA(bearerToken string, rsaPubKey interface{})( *model.JwtData, error){
-	childLogger.Debug().Msg("TokenValidationRSA")
+	childLogger.Info().Str("func","TokenValidationRSA").Send()
 
 	claims := &model.JwtData{}
 	tkn, err := jwt.ParseWithClaims(bearerToken, claims, func(token *jwt.Token) (interface{}, error) {
@@ -65,7 +65,7 @@ func TokenValidationRSA(bearerToken string, rsaPubKey interface{})( *model.JwtDa
 
 // About create token HS256
 func CreatedTokenHS256(Hs256Key interface{}, expirationTime time.Time, jwtData model.JwtData) (*model.Authentication, error){
-	childLogger.Debug().Msg("CreatedTokenHS256")
+	childLogger.Info().Str("func","CreatedTokenHS256").Send()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtData)
 	tokenString, err := token.SignedString([]byte(fmt.Sprint(Hs256Key)))
@@ -81,7 +81,7 @@ func CreatedTokenHS256(Hs256Key interface{}, expirationTime time.Time, jwtData m
 
 // About create token RSA
 func CreatedTokenRSA(keyRsaPriv interface{}, expirationTime time.Time, jwtData model.JwtData) (*model.Authentication, error){
-	childLogger.Debug().Msg("CreatedTokenRSA")
+	childLogger.Info().Str("func","CreatedTokenRSA").Send()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwtData)
 	tokenString, err := token.SignedString(keyRsaPriv)
@@ -99,7 +99,7 @@ func CreatedTokenRSA(keyRsaPriv interface{}, expirationTime time.Time, jwtData m
 func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context, 
 												policyData model.PolicyData,
 												claims *model.JwtData) (events.APIGatewayCustomAuthorizerResponse){
-	childLogger.Debug().Msg("GeneratePolicyFromClaims")
+	childLogger.Info().Str("func","GeneratePolicyFromClaims").Interface("trace-resquest-id", ctx.Value("trace-request-id")).Send()
 	
 	// trace
 	span := tracerProvider.Span(ctx, "service.GeneratePolicyFromClaims")
@@ -127,14 +127,14 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 	}
 	authResponse.Context["tenant_id"] = "NO-TENANT"
 
-	childLogger.Debug().Interface("authResponse : ", authResponse).Msg("")
+	childLogger.Info().Interface("trace-resquest-id", ctx.Value("trace-request-id")).Interface("authResponse", authResponse).Send()
 
 	return authResponse
 }
 
 // About insert session data
 func(u *WorkerService) ScopeValidation (ctx context.Context, claims model.JwtData, arn string) bool{
-	childLogger.Debug().Msg("ScopeValidation")
+	childLogger.Info().Str("func","ScopeValidation").Interface("trace-resquest-id", ctx.Value("trace-request-id")).Send()
 	
 	// trace
 	span := tracerProvider.Span(ctx, "service.ScopeValidation")

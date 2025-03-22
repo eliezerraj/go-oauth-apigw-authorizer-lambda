@@ -7,7 +7,7 @@ import(
 
 // About get otel env var
 func GetOtelEnv() go_core_observ.ConfigOTEL {
-	childLogger.Debug().Msg("GetOtelEnv")
+	childLogger.Info().Str("func","GetOtelEnv").Send()
 
 	var configOTEL	go_core_observ.ConfigOTEL
 

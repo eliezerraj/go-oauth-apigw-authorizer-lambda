@@ -14,7 +14,7 @@ import(
 	go_core_observ "github.com/eliezerraj/go-core/observability"	
 )
 
-var childLogger = log.With().Str("adapter", "api.lambdaHandler").Logger()
+var childLogger = log.With().Str("component", "go-oauth-apigw-authorizer-lambda").Str("package", "internal.adapter.lambdaHandler").Logger()
 
 var tracerProvider go_core_observ.TracerProvider
 var policyData model.PolicyData
@@ -25,7 +25,7 @@ type LambdaHandler struct {
 }
 
 func InitializeLambdaHandler(workerService *service.WorkerService, model string) *LambdaHandler {
-	childLogger.Debug().Msg("InitializeLambdaHandler")
+	childLogger.Info().Str("func","InitializeLambdaHandler").Send()
 
     return &LambdaHandler{
 		workerService: workerService,
@@ -36,12 +36,15 @@ func InitializeLambdaHandler(workerService *service.WorkerService, model string)
 // About lambda handler
 func (h *LambdaHandler) LambdaHandlerRequest(ctx context.Context,
 											request events.APIGatewayCustomAuthorizerRequestTypeRequest ) (events.APIGatewayCustomAuthorizerResponse, error) {
-	childLogger.Debug().Msg("LambdaHandlerRequest")
+	childLogger.Info().Str("func","LambdaHandlerRequest").Interface("request", request).Send()
 
 	//trace
 	span := tracerProvider.Span(ctx, "adapter.lambdaHandler.LambdaHandlerRequest")
 	defer span.End()
-	
+
+	// get the resquest-id and put in inside the 
+	ctx = context.WithValue(ctx, "trace-request-id", request.RequestContext.RequestID)
+
 	// Set policy data
 	policyData.Effect = "Deny"
 	policyData.PrincipalID = "go-oauth-apigw-authorization-lambda"
@@ -107,9 +110,9 @@ func (h *LambdaHandler) LambdaHandlerRequest(ctx context.Context,
 
 // About check the token structure
 func tokenStructureValidation(ctx context.Context, request events.APIGatewayCustomAuthorizerRequestTypeRequest) (*string, error){
-	childLogger.Debug().Msg("tokenStructureValidation")
+	childLogger.Info().Str("func","tokenStructureValidation").Send()
 
-	span := tracerProvider.Span(ctx, "adapter.lambdaHandler.LambdaHandlerRequest")
+	span := tracerProvider.Span(ctx, "adapter.lambdaHandler.tokenStructureValidation")
 	defer span.End()
 	
 	//Check the size of arn
