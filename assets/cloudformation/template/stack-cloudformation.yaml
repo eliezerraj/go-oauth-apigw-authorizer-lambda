@@ -47,6 +47,9 @@ Parameters:
   S3KeyParam:
     Type: String 
     Default: go-oauth-apigw-authorizer-lambda/main.zip
+  GrantCrossAccount:
+    Type: String 
+    Default: 992382474575
 
   ManagedPolicyParameterOne:
     Description: Inform policy ARN (opcional)
@@ -200,6 +203,13 @@ Resources:
       FunctionName: !Ref LambdaFunction
       FunctionVersion: !GetAtt VersionLambda.Version
       Name: live
+
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: !Ref GrantCrossAccount
 
 Outputs:
   LambdaFunctionARN:
