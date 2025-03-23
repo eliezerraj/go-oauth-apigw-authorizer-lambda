@@ -210,7 +210,7 @@ Resources:
       FunctionName: !Ref LambdaFunction
       Action: lambda:InvokeFunction
       Principal: "apigateway.amazonaws.com"
-      SourceAccount: !Ref GrantCrossAccount
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${GrantCrossAccount}:*/authorizers/*"
 
 Outputs:
   LambdaFunctionARN:
