@@ -207,6 +207,7 @@ Resources:
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
+      Name: api-go-oauth-992382474575
       FunctionName: !Ref LambdaFunction
       Action: lambda:InvokeFunction
       Principal: "apigateway.amazonaws.com"
