@@ -209,7 +209,8 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaFunction
       Action: lambda:InvokeFunction
-      Principal: !Ref GrantCrossAccount
+      Principal: "apigateway.amazonaws.com"
+      SourceAccount: !Ref GrantCrossAccount
 
 Outputs:
   LambdaFunctionARN:
