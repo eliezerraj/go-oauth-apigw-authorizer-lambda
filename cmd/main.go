@@ -162,6 +162,7 @@ func main (){
 		panic("error create new aws session " + err.Error())
 	}
 
+	// Otel over aws services
 	otelaws.AppendMiddlewares(&awsConfig.APIOptions)
 
 	// Prepare AWS services
