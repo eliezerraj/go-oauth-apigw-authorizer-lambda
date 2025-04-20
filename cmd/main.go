@@ -138,7 +138,7 @@ func main (){
 	// otel
 	infoTrace.PodName = appServer.InfoPod.PodName
 	infoTrace.PodVersion = appServer.InfoPod.ApiVersion
-	infoTrace.ServiceType = "k8-workload"
+	infoTrace.ServiceType = "lambda"
 	infoTrace.Env = appServer.InfoPod.Env
 
 	tp := tracerProvider.NewTracerProvider(	ctx, 
@@ -148,6 +148,10 @@ func main (){
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 	tracer = tp.Tracer(appServer.InfoPod.PodName)
+
+	// Start the root tracer
+	ctx, span := tracer.Start(ctx, "lambda-main-span")
+	defer span.End()
 
 	defer func(ctx context.Context) {
 			err := tp.Shutdown(ctx)
