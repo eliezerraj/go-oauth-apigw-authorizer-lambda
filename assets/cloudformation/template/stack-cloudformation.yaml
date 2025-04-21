@@ -147,6 +147,8 @@ Resources:
         Variables:
           POD_NAME: !Ref FunctionLambdaName
           OTEL_EXPORTER_OTLP_ENDPOINT: 'localhost:4317'
+          USE_STDOUT_TRACER_EXPORTER: 'false'
+          USE_OTLP_COLLECTOR: 'true'
           REGION: 'us-east-2'
           RSA_BUCKET_NAME_KEY: 'eliezerraj-908671954593-mtls-truststore'
           RSA_FILE_PATH: /

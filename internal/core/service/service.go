@@ -8,7 +8,7 @@ import(
 	go_core_aws_dynamo "github.com/eliezerraj/go-core/aws/dynamo"
 )
 
-var childLogger = log.With().Str("component","go-oauht-lambda").Str("package","internal.core.service").Logger()
+var childLogger = log.With().Str("component","go-oauth-apigw-authorizer-lambda").Str("package","internal.core.service").Logger()
 
 type WorkerService struct {
 	coreDynamoDB 		*go_core_aws_dynamo.DatabaseDynamo

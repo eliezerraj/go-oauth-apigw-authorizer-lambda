@@ -3,6 +3,10 @@ export API_VERSION=1.1
 export POD_NAME=go-oauth-apigw-authorizer-lambda
 export ENV=dev
 export OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4317
+
+export USE_STDOUT_TRACER_EXPORTER=false
+export USE_OTLP_COLLECTOR=true
+
 export MODEL_SIGN=RSA
 export REGION=us-east-2
 export SECRET_NAME=key-jwt-auth

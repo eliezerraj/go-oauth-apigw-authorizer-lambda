@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	github.com/aws/aws-lambda-go v1.47.0
-	github.com/eliezerraj/go-core v1.0.54
+	github.com/eliezerraj/go-core v1.0.67
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/rs/zerolog v1.33.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda v0.60.0
@@ -53,6 +53,7 @@ require (
 	go.opentelemetry.io/contrib/detectors/aws/lambda v0.60.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.35.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.35.0 // indirect
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.35.0 // indirect
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.35.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
