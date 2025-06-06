@@ -62,14 +62,15 @@ type JwtData struct {
 }
 
 type AwsService struct {
-	AwsRegion			string `json:"aws_region"`
-	DynamoTableName		string `json:"dynamo_table_name"`
-	SecretName			string `json:"secret_name"`
-	BucketNameRSAKey	string `json:"bucket_rsa_key,omitempty"`
-	FilePathRSA			string `json:"path_rsa_key,omitempty"`
-	FileNameRSAPrivKey	string `json:"file_name_rsa_private_key,omitempty"`
-	FileNameRSAPubKey	string `json:"file_name_rsa_public_key,omitempty"`
-	FileNameCrlKey		string `json:"file_name_crl_key"`
+	AwsRegion				string `json:"aws_region"`
+	DynamoTableName			string `json:"dynamo_table_name"`
+	SecretName				string `json:"secret_name"`
+	BucketNameRSAKey		string `json:"bucket_rsa_key,omitempty"`
+	FilePathRSA				string `json:"path_rsa_key,omitempty"`
+	FileNameRSAPrivKey		string `json:"file_name_rsa_private_key,omitempty"`
+	FileNameRSAPubKey		string `json:"file_name_rsa_public_key,omitempty"`
+	FileNameCrlKey			string `json:"file_name_crl_key"`
+	DefaultApiKeyUsePlan	string `json:"api_key_usage_plan"`
 }
 
 type RsaKey struct{
