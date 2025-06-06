@@ -6,16 +6,44 @@ import (
 	"context"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/go-oauth-apigw-authorizer-lambda/internal/core/model"
 	"github.com/go-oauth-apigw-authorizer-lambda/internal/core/erro"
-
+	
+	go_core_aws_dynamo "github.com/eliezerraj/go-core/aws/dynamo"
 	go_core_observ "github.com/eliezerraj/go-core/observability"
 )
 
 var tracerProvider go_core_observ.TracerProvider
+
+var childLogger = log.With().Str("component","go-oauth-apigw-authorizer-lambda").Str("package","internal.core.service").Logger()
+
+type WorkerService struct {
+	coreDynamoDB 		*go_core_aws_dynamo.DatabaseDynamo
+	awsService			*model.AwsService
+	Keys				*model.RsaKey
+	TokenSignedValidation 	func(string, interface{}) (*model.JwtData, error)
+	CreatedToken 			func(interface{}, time.Time, model.JwtData) (*model.Authentication, error)
+}
+
+// About create a ner worker service
+func NewWorkerService(	coreDynamoDB 		*go_core_aws_dynamo.DatabaseDynamo,
+						awsService			*model.AwsService,
+						keys				*model.RsaKey,
+						tokenSignedValidation 	func(string, interface{}) (*model.JwtData, error),
+						createdToken 			func(interface{}, time.Time, model.JwtData) (*model.Authentication, error) ) (*WorkerService, error) {
+	childLogger.Info().Str("func","NewWorkerService").Send()
+
+	return &WorkerService{	coreDynamoDB: coreDynamoDB,
+							awsService: awsService,
+							Keys: keys,
+							TokenSignedValidation: tokenSignedValidation,
+							CreatedToken: createdToken,
+	}, nil
+}
 
 // About check token HS256 expired/signature and claims
 func TokenValidationHS256(bearerToken string, hs256Key interface{}) ( *model.JwtData, error){
@@ -126,6 +154,11 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 		authResponse.Context["jwt_id"] = claims.JwtId
 	}
 	authResponse.Context["tenant_id"] = "NO-TENANT"
+
+	// check insert usage-plan
+	if w.awsService.DefaultApiKeyUsePlan != "" {
+		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan
+	}
 
 	childLogger.Info().Interface("trace-resquest-id", ctx.Value("trace-request-id")).Interface("authResponse", authResponse).Send()
 

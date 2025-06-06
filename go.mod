@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	github.com/aws/aws-lambda-go v1.47.0
-	github.com/eliezerraj/go-core v1.0.67
+	github.com/eliezerraj/go-core v1.0.78
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/rs/zerolog v1.33.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda v0.60.0

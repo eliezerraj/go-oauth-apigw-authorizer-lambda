@@ -17,6 +17,7 @@ export RSA_FILE_PATH=/
 export RSA_PRIV_FILE_KEY=server-private.key
 export RSA_PUB_FILE_KEY=server-public.key
 export CRL_FILE_KEY=crl-ca.crl
+export DEFAULT_API_KEY_USAGE_PLAN_TIER_1=2J8D44g4gTuojQ78pS3L4KTI936KKAx3gFueVTqg
 
 # Default target
 all: run

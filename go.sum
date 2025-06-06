@@ -57,8 +57,8 @@ github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyY
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/eliezerraj/go-core v1.0.67 h1:YNz8SCSBuIpZimbjj4sjl8khGX9uTwVbPz1M2zKYvDY=
-github.com/eliezerraj/go-core v1.0.67/go.mod h1:wXF73sYaC8BicGTX4YcGbredIFpNjSlYrX70XBCLVZk=
+github.com/eliezerraj/go-core v1.0.78 h1:X48qa3CiJxZL6pt/jkFRvS8R4rL/PydQH4gf2zd9gFo=
+github.com/eliezerraj/go-core v1.0.78/go.mod h1:VSvFwTjtbZGvf14niDAja5op03A4SDOSaLpB4RL6J1Y=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
 github.com/go-logr/logr v1.4.2/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=

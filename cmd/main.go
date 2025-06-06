@@ -145,9 +145,11 @@ func main (){
 											appServer.ConfigOTEL, 
 											&infoTrace)
 	
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(xray.Propagator{})
-	tracer = tp.Tracer(appServer.InfoPod.PodName)
+	if tp != nil {
+		otel.SetTracerProvider(tp)
+		otel.SetTextMapPropagator(xray.Propagator{})
+		tracer = tp.Tracer(appServer.InfoPod.PodName)
+	}
 
 	// Start the root tracer
 	ctx, span := tracer.Start(ctx, "lambda-main-span")
@@ -195,8 +197,8 @@ func main (){
 
 	handler := lambdaHandler.InitializeLambdaHandler(workerService, appServer.InfoPod.ModelSign)
 
-	/*
-	mockEvent := events.APIGatewayCustomAuthorizerRequestTypeRequest{
+	
+	/*mockEvent := events.APIGatewayCustomAuthorizerRequestTypeRequest{
 		Type:       "TOKEN",
 		MethodArn:  "arn:aws:execute-api:us-east-2:908671954593:k0ng1bdik7/qa/GET/account/info",
 		Headers: map[string]string{
