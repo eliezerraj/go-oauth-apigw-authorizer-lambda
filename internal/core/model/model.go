@@ -57,6 +57,7 @@ type JwtData struct {
 	Version		string 	`json:"version"`
 	JwtId		string 	`json:"jwt_id"`
 	Username	string 	`json:"username"`
+	Tier		string 	`json:"tier"`
 	Scope	  	[]string `json:"scope"`
 	jwt.RegisteredClaims
 }
@@ -70,7 +71,9 @@ type AwsService struct {
 	FileNameRSAPrivKey		string `json:"file_name_rsa_private_key,omitempty"`
 	FileNameRSAPubKey		string `json:"file_name_rsa_public_key,omitempty"`
 	FileNameCrlKey			string `json:"file_name_crl_key"`
-	DefaultApiKeyUsePlan	string `json:"api_key_usage_plan"`
+	DefaultApiKeyUsePlan1	string `json:"api_key_usage_plan_1"`
+	DefaultApiKeyUsePlan2	string `json:"api_key_usage_plan_2"`
+	DefaultApiKeyUsePlan3	string `json:"api_key_usage_plan_3"`	
 }
 
 type RsaKey struct{
