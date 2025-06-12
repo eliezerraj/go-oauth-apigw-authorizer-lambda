@@ -37,7 +37,13 @@ func GetAwsServiceEnv() model.AwsService {
 		awsService.FileNameCrlKey = os.Getenv("CRL_FILE_KEY")
 	}
 	if os.Getenv("DEFAULT_API_KEY_USAGE_PLAN_TIER_1") !=  "" {
-		awsService.DefaultApiKeyUsePlan = os.Getenv("DEFAULT_API_KEY_USAGE_PLAN_TIER_1")
+		awsService.DefaultApiKeyUsePlan1 = os.Getenv("DEFAULT_API_KEY_USAGE_PLAN_TIER_1")
+	}
+	if os.Getenv("DEFAULT_API_KEY_USAGE_PLAN_TIER_2") !=  "" {
+		awsService.DefaultApiKeyUsePlan2 = os.Getenv("DEFAULT_API_KEY_USAGE_PLAN_TIER_2")
+	}
+	if os.Getenv("DEFAULT_API_KEY_USAGE_PLAN_TIER_3") !=  "" {
+		awsService.DefaultApiKeyUsePlan3 = os.Getenv("DEFAULT_API_KEY_USAGE_PLAN_TIER_3")
 	}
 
 	return awsService

@@ -1,7 +1,7 @@
 [
     {
       "ParameterKey": "ApiVersion",
-      "ParameterValue": "3.1"
+      "ParameterValue": "3.3"
     },
     {
       "ParameterKey": "Env",

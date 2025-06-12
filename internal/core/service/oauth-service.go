@@ -156,8 +156,14 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 	authResponse.Context["tenant_id"] = "NO-TENANT"
 
 	// check insert usage-plan
-	if w.awsService.DefaultApiKeyUsePlan != "" {
-		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan
+	if claims.Tier == "tier1" {
+		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
+	} else if claims.Tier == "tier2" { 
+		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan2
+	} else if claims.Tier == "tier3"{
+		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan3
+	} else {
+		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
 	}
 
 	childLogger.Info().Interface("trace-resquest-id", ctx.Value("trace-request-id")).Interface("authResponse", authResponse).Send()
