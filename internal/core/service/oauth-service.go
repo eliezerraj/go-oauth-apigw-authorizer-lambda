@@ -149,23 +149,25 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 	// InsertDataAuthorizationContext
 	authResponse.Context = make(map[string]interface{})
 	authResponse.Context["authMessage"] = policyData.Message
-	//authResponse.UsageIdentifierKey = res_userProfile.ApiKey
-	if claims != nil {
-		authResponse.Context["jwt_id"] = claims.JwtId
-	}
 	authResponse.Context["tenant_id"] = "NO-TENANT"
 
-	// check insert usage-plan
-	if claims.Tier == "tier1" {
-		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
-	} else if claims.Tier == "tier2" { 
-		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan2
-	} else if claims.Tier == "tier3"{
-		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan3
-	} else {
-		authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
+	if claims != nil {
+		if claims.JwtId != "" {
+			authResponse.Context["jwt_id"] = claims.JwtId
+		}
+		// check insert usage-plan
+		if claims.Tier != "" {
+			if claims.Tier == "tier1" {
+				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
+			} else if claims.Tier == "tier2" { 
+				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan2
+			} else if claims.Tier == "tier3"{
+				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan3
+			} else {
+				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
+			}
+		}
 	}
-
 	childLogger.Info().Interface("trace-resquest-id", ctx.Value("trace-request-id")).Interface("authResponse", authResponse).Send()
 
 	return authResponse
