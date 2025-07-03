@@ -150,7 +150,7 @@ Resources:
           USE_STDOUT_TRACER_EXPORTER: 'false'
           USE_OTLP_COLLECTOR: 'true'
           REGION: 'us-east-2'
-          RSA_BUCKET_NAME_KEY: 'eliezerraj-908671954593-mtls-truststore'
+          RSA_BUCKET_NAME_KEY: 'docktech-eliezer-908671954593-truststore-mtls'
           RSA_FILE_PATH: /
           RSA_PRIV_FILE_KEY: server-private.key
           RSA_PUB_FILE_KEY: server-public.key
