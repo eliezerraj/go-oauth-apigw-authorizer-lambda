@@ -12,7 +12,7 @@ export REGION=us-east-2
 export SECRET_NAME=key-jwt-auth
 export DYNAMO_TABLE_NAME=user_login_2
 
-export RSA_BUCKET_NAME_KEY=eliezerraj-908671954593-mtls-truststore
+export RSA_BUCKET_NAME_KEY=docktech-eliezer-908671954593-truststore-mtls
 export RSA_FILE_PATH=/
 export RSA_PRIV_FILE_KEY=server-private.key
 export RSA_PUB_FILE_KEY=server-public.key

@@ -52,14 +52,14 @@ type CredentialScope struct {
 }
 
 type JwtData struct {
-	TokenUse	string 	`json:"token_use"`
-	ISS			string 	`json:"iss"`
-	Version		string 	`json:"version"`
-	JwtId		string 	`json:"jwt_id"`
-	Username	string 	`json:"username"`
-	Tier		string 	`json:"tier"`
-	ApiAccessKey	string 	`json:"api_access_key`
-	Scope	  	[]string `json:"scope"`
+	TokenUse		string 	`json:"token_use"`
+	ISS				string 	`json:"iss"`
+	Version			string 	`json:"version"`
+	JwtId			string 	`json:"jwt_id"`
+	Username		string 	`json:"username"`
+	Tier			string 	`json:"tier"`
+	ApiAccessKey	string 	`json:"api_access_key"`
+	Scope	  		[]string `json:"scope"`
 	jwt.RegisteredClaims
 }
 

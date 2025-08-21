@@ -156,6 +156,7 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 		if claims.JwtId != "" {
 			authResponse.Context["jwt_id"] = claims.JwtId
 		}
+		// if the ApiAccessKey is informed used it
 		if claims.ApiAccessKey != "" {
 			authResponse.UsageIdentifierKey = claims.ApiAccessKey
 		} else {

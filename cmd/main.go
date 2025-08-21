@@ -13,7 +13,6 @@ import(
 	"github.com/go-oauth-apigw-authorizer-lambda/internal/adapter/lambdaHandler"
 
 	//"github.com/aws/aws-lambda-go/events" // use it for a mock local
-	"github.com/aws/aws-lambda-go/lambda"
 
 	go_core_observ "github.com/eliezerraj/go-core/observability"
 	go_core_bucket_s3 "github.com/eliezerraj/go-core/aws/bucket_s3"
@@ -25,9 +24,11 @@ import(
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
+
+	"github.com/aws/aws-lambda-go/lambda" // use it for PRD
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda" // use it for PRD
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig" //  use it for PRD
 )
 
 var(
@@ -211,11 +212,11 @@ func main (){
 			RequestID: "request-id-12345",
 		},
 		Headers: map[string]string{
-			"Authorization": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJpc3MiOiJnby1vYXV0aC1sYW1iZGEiLCJ2ZXJzaW9uIjoiMi4wIiwiand0X2lkIjoiYmZlNGI4MTAtMzAzNy00YmZhLWFmNTMtYzc2YjMxODNiNDlkIiwidXNlcm5hbWUiOiJhZG1pbi10ZXN0IiwidGllciI6InRpZXIxIiwic2NvcGUiOlsidGVzdC5yZWFkIiwidGVzdC53cml0ZSIsImFkbWluIl0sImV4cCI6MTc0OTc4MzU2N30.MIUode-InbFpTxHt08kE07PBo0xwl-dzMw730D4pE3yKNso-uAdGUNxcJsytFPffpubdAn0U1pWSoAuHjxApysbfMSxQLH9OHZ63zkhKKMe9_ABPyQXjYADEKGV-LEn8H-gn_LOHxM0aRPzp_OjxT1-0vyvFHyp-Y5rGwL9fQT2dbbMfNmOg7YHs-f7bN3s5DVGcEcEqOu79v0V4LGemdAJiXlX6x9oAZh8zBR2lAL3R7fBYyS5shIVhYB4mtaUzqTuTqE9uZeFofo-VvvpWO5f6qLYqI5nP1t5aqWGJw4Q6qUQY2LhK4gL2NW1P62IoQ00irYyW0DoZQIt10p5ZbevJDLfs-HwldQwstO8xdl0lNGSSaHZKv95aoj8c2Tjps9gvw5CMoXdavInv7lmg1NhJBoFS5NDQlT8XIjRz-h_x6g_4jL9iq0FJA67XQbJAIk_ZqQjIhth9vepTURi6sW65Up9eDRqd3_Mm3Pf-N0LjmavSNiWjd-vZQRwk2x9RCmM_g5XSqKZ2xk0V23X8I1NCYxNukJCpmkTUBSDUUR2Put7KXT4YRL6s_j7EyB3EA3csFkQQBCRwd9G1xmTXRjJiBqjIfBr3_My4xqEh-bHxlw-BLPUw1VjI5Arp_VTr7wGz4T8QtrhZgsSly_38j3pbs3Fub-05_QBoyJOpU_8",
+			"Authorization": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJpc3MiOiJnby1vYXV0aC1sYW1iZGEiLCJ2ZXJzaW9uIjoiMi4xIiwiand0X2lkIjoiMmY4ZWRmNzEtZWM0Yy00MTkyLTgwYjMtNDMwN2Y0MTRkMzczIiwidXNlcm5hbWUiOiJ1c2VyLTAxIiwidGllciI6IiIsImFwaV9hY2Nlc3Nfa2V5IjoiQVBJX0FDQ0VTU19LRVlfVVNFUl8wMSIsInNjb3BlIjpbInRlc3QucmVhZCIsInRlc3Qud3JpdGUiLCJhZG1pbiJdLCJleHAiOjE3NTU5ODk2ODF9.dxw--TAAz_fSnJlqEprB3X1SjzRiKV9QS9vkMcUZfVRUHo7q5CXJtFSoooc13bMC1Cxf7O8B3JJ0gP3PeD5YM69WFvMyKkju_66YSvcJrM0e9YSPNEPM7804BxRH8i7gfcKlxZ0RTfglBSWrDv0KJKnSdFQizJVNlOkQgDUlK4FaJ32syLTOOsGv_uaZ3uWTurZFzPunmWL0Pc-UxyKNDCNARWS_d7UYeM3NjLZ_Z6pGMngKMTiP2iasB-tGlAjBUdOpqdafFWpdRsiM0YXH4pS40Me30r_vmual9ddaV5-HEw62PbGcpcp1UUsLnUZoaMTMyaL7WdwlhmsticrV95sUxw5s5yVsh96Tdz-hiV0neyuHIoIJfFezazAbWLkszNPyiF4hySBB1QlEP90rNX5wOV8EQOuWWjMk8hzH_SCqtCawBu23RqZzrnWTcLddjWdYRNQmkBwGkFhoswNXobPMMPBjRWFCSvWKo1mSvcvGQ991BzNg0kPaA1MdyDO7wfiVgKFSzqZRatxC0hB_eIzO6hTTPg9DFvsKw5Pli6BkF1wdLArVyekMdM4Nyo-Kt-8v9j6ZctoMEku8LADqV820K_5SfbALM5j7hXHeCj0_PQyu0RJQiExOA5cFXjEtywHZk7JdS6Y6jNWkBkK_SN43T5UaaQrXzR5XYE1v1bU",
 		},
-	}
+	}*/
 
-	handler.LambdaHandlerRequest(ctx, mockEvent)*/
+	//handler.LambdaHandlerRequest(ctx, mockEvent)
 
 	lambda.Start(otellambda.InstrumentHandler(handler.LambdaHandlerRequest, xrayconfig.WithRecommendedOptions(tp)... ))
 }
