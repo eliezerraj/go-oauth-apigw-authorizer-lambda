@@ -158,7 +158,7 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 		}
 		if claims.ApiAccessKey != "" {
 			authResponse.UsageIdentifierKey = claims.ApiAccessKey
-		} esle {
+		} else {
 			// check insert usage-plan
 			if claims.Tier != "" {
 				if claims.Tier == "tier1" {
