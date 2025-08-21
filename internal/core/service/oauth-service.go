@@ -152,6 +152,7 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 	authResponse.Context["tenant_id"] = "NO-TENANT"
 
 	if claims != nil {
+		// check insert jwt-id
 		if claims.JwtId != "" {
 			authResponse.Context["jwt_id"] = claims.JwtId
 		}
@@ -166,7 +167,10 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 			} else {
 				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
 			}
+		} else if claims.ApiAccessKey  != "" {
+			authResponse.UsageIdentifierKey =claims.ApiAccessKey
 		}
+		// // check insert usage-plan by access-key
 	}
 	childLogger.Info().Interface("trace-resquest-id", ctx.Value("trace-request-id")).Interface("authResponse", authResponse).Send()
 
