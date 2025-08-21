@@ -156,21 +156,22 @@ func(w *WorkerService) GeneratePolicyFromClaims(ctx context.Context,
 		if claims.JwtId != "" {
 			authResponse.Context["jwt_id"] = claims.JwtId
 		}
-		// check insert usage-plan
-		if claims.Tier != "" {
-			if claims.Tier == "tier1" {
-				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
-			} else if claims.Tier == "tier2" { 
-				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan2
-			} else if claims.Tier == "tier3"{
-				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan3
-			} else {
-				authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
+		if claims.ApiAccessKey != "" {
+			authResponse.UsageIdentifierKey = claims.ApiAccessKey
+		} esle {
+			// check insert usage-plan
+			if claims.Tier != "" {
+				if claims.Tier == "tier1" {
+					authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
+				} else if claims.Tier == "tier2" { 
+					authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan2
+				} else if claims.Tier == "tier3"{
+					authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan3
+				} else {
+					authResponse.UsageIdentifierKey = w.awsService.DefaultApiKeyUsePlan1
+				}
 			}
-		} else if claims.ApiAccessKey  != "" {
-			authResponse.UsageIdentifierKey =claims.ApiAccessKey
 		}
-		// // check insert usage-plan by access-key
 	}
 	childLogger.Info().Interface("trace-resquest-id", ctx.Value("trace-request-id")).Interface("authResponse", authResponse).Send()
 
